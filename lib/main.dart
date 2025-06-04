@@ -41,7 +41,14 @@ void main() async {
   await Hive.openBox<UserProfile>('profile');
 
   // Always delete any existing "badges" data to avoid stale schema errors:
-  await Hive.deleteBoxFromDisk('badges');
+  try {
+    if (await Hive.boxExists('badges')) {
+      await Hive.deleteBoxFromDisk('badges');
+    }
+  } catch (err, st) {
+    debugPrint('Failed to delete badges box: $err');
+    debugPrint('$st');
+  }
   await Hive.openBox<Badge>('badges');
 
   // ─── 3) Decide if we show onboarding or go straight to "/" ────────────────────
